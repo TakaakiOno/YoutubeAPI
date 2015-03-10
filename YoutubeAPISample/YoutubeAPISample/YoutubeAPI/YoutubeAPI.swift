@@ -34,7 +34,7 @@ class YoutubeAPI: NSObject {
     var delegate :YoutubeAPIDelegate!
     
     // API URL
-    let baseURL :String = "https://www.googleapis.com/youtube/v3"
+    var baseURL :String = "https://www.googleapis.com/youtube/v3"
     
     // Request
     var requestParameterDictionary :NSMutableDictionary!
@@ -50,7 +50,7 @@ class YoutubeAPI: NSObject {
     
     
     init(uri: String) {
-        self.requestURL = baseURL + uri
+        self.baseURL = baseURL + uri
         let path = NSBundle.mainBundle().pathForResource("YoutubeAPISetting", ofType: "plist")
         let data = NSDictionary(contentsOfFile: path!)
         self.APIKey = data?.objectForKey("API_KEY") as String
@@ -58,11 +58,11 @@ class YoutubeAPI: NSObject {
     }
     
     func fetchAndParse(){
-        println(self.requestURL)
         
         // fetch
         self.requestParameterDictionary["key"] = self.APIKey
-        self.requestURL = self.requestURL + "?" + self.requestParameterDictionary.toQuery()
+        self.requestURL = self.baseURL + "?" + self.requestParameterDictionary.toQuery()
+        println(self.requestURL)
         
         request.jsonRequestFromURL(self.requestURL, {() in
             // parse
@@ -88,6 +88,22 @@ class YoutubeAPI: NSObject {
         
         // Succeed
         self.response = YoutubeAPIResponse(responseDic: response, responseType: YoutubeAPIResponse.ResponseType.Normal)
+    }
+    
+    
+    func next(){
+        if self.response?.result?.nextPageToken != nil {
+            self.requestParameterDictionary["pageToken"] = self.response?.result?.nextPageToken
+            self.fetchAndParse()
+        }
+    }
+    
+    
+    func prev(){
+        if self.response?.result?.prevPageToken != nil {
+            self.requestParameterDictionary["pageToken"] = self.response?.result?.prevPageToken
+            self.fetchAndParse()
+        }
     }
     
     

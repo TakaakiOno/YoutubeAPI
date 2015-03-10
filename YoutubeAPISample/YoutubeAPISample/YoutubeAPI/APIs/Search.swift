@@ -30,7 +30,9 @@ extension YoutubeAPI{
         
         
         override func fetchAndParse() {
-            self.requestParameterDictionary = self.parameters.toDictionary().mutableCopy() as NSMutableDictionary
+            if self.requestParameterDictionary == nil {
+                self.requestParameterDictionary = self.parameters.toDictionary().mutableCopy() as NSMutableDictionary
+            }
             super.fetchAndParse()
         }
         

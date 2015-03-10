@@ -15,7 +15,7 @@ class SearchTableViewCell: UITableViewCell {
     @IBOutlet weak var typeLabel: UILabel!
     
     func setContent(searchResult:YoutubeAPIResponse.Search){
-        println(searchResult)
+//        println(searchResult)
         titleLabel.text = searchResult.snippet?.title
         
         if searchResult.id.kind == "youtube#playlist"{

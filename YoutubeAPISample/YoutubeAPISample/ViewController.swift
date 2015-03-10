@@ -11,15 +11,18 @@ import UIKit
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, YoutubeAPIDelegate{
 
     var searchResult :[Any] = []
+    var searchAPI :YoutubeAPI.Search!
+    
     @IBOutlet weak var tableview: UITableView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        var searchAPI = YoutubeAPI.Search()
-        searchAPI.delegate = self
-        searchAPI.parameters.q = "pitbull song"
-        searchAPI.parameters.maxResults = 50
-        searchAPI.fetchAndParse()
+        self.searchAPI = YoutubeAPI.Search()
+        self.searchAPI.delegate = self
+        self.searchAPI.parameters.q = "pitbull song"
+        self.searchAPI.parameters.maxResults = 50
+        self.searchAPI.fetchAndParse()
     }
 
     override func didReceiveMemoryWarning() {
@@ -35,7 +38,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     func youtubeAPIRequestSucceed(apiType: YoutubeAPIType, requestParameters: Any, response: YoutubeAPIResponse.Base?) {
         // Success
-        self.searchResult = (response?.items)!
+        var count = response?.items.count
+        for (var i = 0; i < count; i++){
+            self.searchResult.append(response?.items[i] as YoutubeAPIResponse.Search)
+        }
+//        self.searchResult = (response?.items)!
         self.tableview.reloadData()
     }
     
@@ -45,13 +52,21 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         var cell :SearchTableViewCell? = tableView.dequeueReusableCellWithIdentifier("SearchTableViewCell") as? SearchTableViewCell
         cell!.setContent(self.searchResult[indexPath.row] as YoutubeAPIResponse.Search)
+        
+        if indexPath.row == self.searchResult.count - 1 {
+            self.searchAPI.next()
+        }
+        
         return cell!
     }
     
     func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
         tableview.deselectRowAtIndexPath(indexPath, animated: true)
-        
     }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    }
+    
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var count :Int? = self.searchResult.count
